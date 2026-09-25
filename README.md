@@ -81,8 +81,10 @@ server.js                  Servidor Express
 
 ## Implantação (deploy)
 
-Este é um app Node.js/Express comum — funciona em qualquer provedor que
-rode Node (Render, Railway, um VPS, etc.). Pontos de atenção:
+O domínio oficial da página é **sonhandoalto.mpi.org.br**. Este é um app
+Node.js/Express comum — funciona em qualquer provedor que rode Node
+(Render, Railway, um VPS, etc.) apontado para esse domínio. Pontos de
+atenção:
 
 - Defina as variáveis de ambiente do `.env.example` no provedor escolhido.
 - O banco SQLite (`data/leads.db`) precisa de disco persistente entre
