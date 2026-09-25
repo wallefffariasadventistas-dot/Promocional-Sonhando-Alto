@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sonhando Alto — Play no Futuro</title>
+<meta
+  name="description"
+  content="Adicione seus dados para conhecer os benefícios do projeto Sonhando Alto e receber informações sobre bolsas de estudo em faculdades adventistas."
+/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div class="logo">
+        <span class="logo__num">25</span>
+        <span class="logo__text">sonhando <strong>ALTO</strong><br /><em>anos</em></span>
+      </div>
+      <a class="btn btn--ghost" href="#form">Quero participar</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__stars" aria-hidden="true"></div>
+      <div class="container hero__inner">
+        <div class="hero__copy">
+          <p class="eyebrow">Ministério de Publicações</p>
+          <h1 class="headline">
+            Play <span class="headline__play">▶</span><br />
+            no futuro!
+          </h1>
+          <div class="tags">
+            <span class="tag">QUANDO VOCÊ</span>
+            <span class="tag">DECIDE, TUDO</span>
+            <span class="tag">MUDA!</span>
+          </div>
+          <p class="hero__lead">
+            Realize seu sonho de ser um jovem missionário e estudar em uma
+            faculdade adventista.
+          </p>
+          <a class="btn btn--primary" href="#form">Quero saber mais</a>
+        </div>
+        <div class="hero__art">
+          <img
+            src="/images/hero-group.jpg"
+            alt="Jovens escalando uma montanha em formato de coração, representando as áreas de estudo do projeto Sonhando Alto"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits">
+      <div class="container">
+        <h2 class="section-title">Por que participar do Sonhando Alto?</h2>
+        <div class="benefits__grid">
+          <article class="benefit-card">
+            <img src="/images/hero-boy.jpg" alt="Jovem sorrindo, escalando com capacete e materiais de estudo" loading="lazy" />
+            <div class="benefit-card__body">
+              <h3>Realize seu sonho</h3>
+              <p>
+                Realize seu sonho de ser um jovem missionário e estudar em
+                uma faculdade adventista.
+              </p>
+            </div>
+          </article>
+          <article class="benefit-card benefit-card--highlight">
+            <div class="benefit-card__icon">🎓</div>
+            <div class="benefit-card__body">
+              <h3>Bolsas de estudo</h3>
+              <p>Saiba como conseguir bolsas de estudos.</p>
+            </div>
+          </article>
+          <article class="benefit-card">
+            <img src="/images/hero-girl.jpg" alt="Jovem sorrindo, escalando com capacete e materiais de estudo" loading="lazy" />
+            <div class="benefit-card__body">
+              <h3>Até 100% de bolsa</h3>
+              <p>Você pode estudar com bolsas de até 100%.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section" id="form">
+      <div class="container form-section__inner">
+        <div class="form-section__header">
+          <h2>
+            Adicione seus dados para conhecer os benefícios do projeto e
+            receber todas as informações
+          </h2>
+          <p>
+            Preencha o formulário abaixo. Nossa equipe entrará em contato com
+            você em breve.
+          </p>
+        </div>
+
+        <form id="lead-form" class="lead-form" novalidate>
+          <!-- honeypot anti-spam, mantido oculto para usuários reais -->
+          <div class="lead-form__honeypot" aria-hidden="true">
+            <label for="website">Não preencha este campo</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="nome">Nome completo *</label>
+            <input type="text" id="nome" name="nome" required maxlength="150" autocomplete="name" />
+          </div>
+
+          <div class="field">
+            <label for="telefone">Telefone (WhatsApp) *</label>
+            <input
+              type="tel"
+              id="telefone"
+              name="telefone"
+              required
+              maxlength="30"
+              placeholder="(00) 00000-0000"
+              autocomplete="tel"
+            />
+          </div>
+
+          <div class="field field--half">
+            <label for="idade">Idade *</label>
+            <input type="number" id="idade" name="idade" required min="10" max="100" />
+          </div>
+
+          <div class="field field--half">
+            <label for="curso">Curso de interesse *</label>
+            <select id="curso" name="curso" required>
+              <option value="" disabled selected>Selecione um curso</option>
+            </select>
+          </div>
+
+          <div class="field field--half">
+            <label for="cidade">Cidade *</label>
+            <input type="text" id="cidade" name="cidade" required maxlength="100" autocomplete="address-level2" />
+          </div>
+
+          <div class="field field--half">
+            <label for="distrito">Distrito *</label>
+            <input type="text" id="distrito" name="distrito" required maxlength="100" />
+          </div>
+
+          <div class="field field--full">
+            <button type="submit" class="btn btn--primary btn--block" id="submit-btn">
+              Enviar meus dados
+            </button>
+            <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <p class="site-footer__ministry">Ministério de Publicações</p>
+      <p class="site-footer__url">Acesse: <strong>sonhandoaltobrasil.com</strong></p>
+      <p class="site-footer__copy">© <span id="year"></span> Sonhando Alto — 25 anos</p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

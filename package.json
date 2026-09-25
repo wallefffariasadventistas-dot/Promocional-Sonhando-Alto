@@ -1,0 +1,22 @@
+{
+  "name": "promocional-sonhando-alto",
+  "version": "1.0.0",
+  "description": "Pagina de captura de leads do projeto Sonhando Alto",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "hash-password": "node scripts/hash-password.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.3.0",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.18.0",
+    "pdfkit": "^0.15.0"
+  }
+}
