@@ -4,9 +4,20 @@
   const auth = firebase.auth();
   const provider = new firebase.auth.GoogleAuthProvider();
 
+  const POPUP_BLOCKED_CODES = [
+    "auth/popup-blocked",
+    "auth/operation-not-supported-in-this-environment",
+    "auth/popup-closed-by-user",
+  ];
+
   function setMessage(text, type) {
     messageEl.textContent = text;
     messageEl.className = "form-message" + (type ? ` form-message--${type}` : "");
+  }
+
+  function resetButton() {
+    btn.disabled = false;
+    btn.textContent = "Entrar com Google";
   }
 
   async function completeLogin(user) {
@@ -31,6 +42,22 @@
     })
     .catch(() => {});
 
+  // Trata o retorno do Google quando o login foi feito via redirecionamento
+  // (fallback usado quando o navegador bloqueia o pop-up).
+  auth
+    .getRedirectResult()
+    .then((result) => {
+      if (result && result.user) {
+        btn.disabled = true;
+        btn.textContent = "Entrando...";
+        return completeLogin(result.user);
+      }
+    })
+    .catch((err) => {
+      setMessage(err.message || "Não foi possível entrar com o Google.", "error");
+      resetButton();
+    });
+
   btn.addEventListener("click", async () => {
     setMessage("", "");
     btn.disabled = true;
@@ -40,10 +67,18 @@
       const result = await auth.signInWithPopup(provider);
       await completeLogin(result.user);
     } catch (err) {
+      if (POPUP_BLOCKED_CODES.includes(err.code)) {
+        // Pop-up bloqueado pelo navegador: tenta de novo com redirecionamento.
+        btn.textContent = "Redirecionando para o Google...";
+        auth.signInWithRedirect(provider).catch((redirectErr) => {
+          setMessage(redirectErr.message || "Não foi possível entrar com o Google.", "error");
+          resetButton();
+        });
+        return;
+      }
       setMessage(err.message || "Não foi possível entrar com o Google.", "error");
       await auth.signOut().catch(() => {});
-      btn.disabled = false;
-      btn.textContent = "Entrar com Google";
+      resetButton();
     }
   });
 })();
