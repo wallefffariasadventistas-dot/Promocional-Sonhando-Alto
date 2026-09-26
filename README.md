@@ -42,12 +42,8 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados).
    - Ative o **Firestore Database** (modo produção) em Build → Firestore
      Database → Create database.
    - Vá em **Configurações do projeto** (ícone de engrenagem) → **Contas de
-     serviço** → **Gerar nova chave privada**. Isso baixa um arquivo `.json`.
-   - Converta esse arquivo em uma linha base64:
-     ```bash
-     npm run encode-firebase-key -- caminho/para/o-arquivo-baixado.json
-     ```
-   - Copie o valor gerado.
+     serviço** → **Gerar nova chave privada**. Isso baixa um arquivo `.json`
+     — guarde-o, ele não pode ser baixado de novo (só gerar outro).
 
 3. **Configurar as variáveis de ambiente**
    Gere também o hash da senha do admin:
@@ -57,8 +53,21 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados).
    npm run hash-password -- "SuaSenhaForte123"
    ```
 
-   Em **Settings → Environment Variables** no Vercel, adicione:
-   - `FIREBASE_SERVICE_ACCOUNT_BASE64` — valor gerado no passo 2
+   Em **Settings → Environment Variables** no Vercel, adicione, usando **uma**
+   das duas opções abaixo para a credencial do Firebase:
+
+   - **Opção A — sem rodar comando nenhum:** abra o arquivo `.json` baixado
+     (em qualquer editor de texto ou app de notas) e copie três campos dele
+     para três variáveis separadas:
+     - `FIREBASE_PROJECT_ID` = valor do campo `project_id`
+     - `FIREBASE_CLIENT_EMAIL` = valor do campo `client_email`
+     - `FIREBASE_PRIVATE_KEY` = valor do campo `private_key` (cole exatamente
+       como está, incluindo os `\n`)
+   - **Opção B — se tiver como rodar um comando** (`npm run encode-firebase-key
+     -- caminho/do/arquivo.json`): cole o resultado em uma única variável,
+     `FIREBASE_SERVICE_ACCOUNT_BASE64`.
+
+   E sempre adicione também:
    - `SESSION_SECRET` — valor aleatório forte (ex: `openssl rand -hex 32`)
    - `ADMIN_USERNAME` — usuário do painel (ex: `admin`)
    - `ADMIN_PASSWORD_HASH` — o hash gerado acima
