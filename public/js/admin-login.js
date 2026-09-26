@@ -1,27 +1,26 @@
 (function () {
-  const form = document.getElementById("login-form");
   const btn = document.getElementById("login-btn");
   const messageEl = document.getElementById("login-message");
   const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
 
   function setMessage(text, type) {
     messageEl.textContent = text;
     messageEl.className = "form-message" + (type ? ` form-message--${type}` : "");
   }
 
-  function friendlyAuthError(err) {
-    switch (err.code) {
-      case "auth/invalid-email":
-        return "E-mail inválido.";
-      case "auth/user-not-found":
-      case "auth/wrong-password":
-      case "auth/invalid-credential":
-        return "E-mail ou senha inválidos.";
-      case "auth/too-many-requests":
-        return "Muitas tentativas. Aguarde um pouco e tente de novo.";
-      default:
-        return "Não foi possível entrar. Tente novamente.";
+  async function completeLogin(user) {
+    const idToken = await user.getIdToken();
+    const response = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || "Não foi possível entrar.");
     }
+    window.location.href = "/admin/dashboard.html";
   }
 
   // Se já estiver logado (sessão do nosso backend), vai direto para o painel.
@@ -32,37 +31,30 @@
     })
     .catch(() => {});
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    setMessage("", "");
-
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    btn.disabled = true;
-    btn.textContent = "Entrando...";
-
-    try {
-      const credential = await auth.signInWithEmailAndPassword(email, password);
-      const idToken = await credential.user.getIdToken();
-
-      const response = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data.error || "Não foi possível entrar.");
+  // Trata o retorno do Google depois do redirecionamento.
+  auth
+    .getRedirectResult()
+    .then((result) => {
+      if (result && result.user) {
+        btn.disabled = true;
+        btn.textContent = "Entrando...";
+        return completeLogin(result.user);
       }
-
-      window.location.href = "/admin/dashboard.html";
-    } catch (err) {
-      setMessage(err.code ? friendlyAuthError(err) : err.message, "error");
-      await auth.signOut().catch(() => {});
+    })
+    .catch((err) => {
+      setMessage(err.message || "Não foi possível entrar com o Google.", "error");
       btn.disabled = false;
-      btn.textContent = "Entrar";
-    }
+      btn.textContent = "Entrar com Google";
+    });
+
+  btn.addEventListener("click", () => {
+    setMessage("", "");
+    btn.disabled = true;
+    btn.textContent = "Redirecionando para o Google...";
+    auth.signInWithRedirect(provider).catch((err) => {
+      setMessage(err.message || "Não foi possível iniciar o login.", "error");
+      btn.disabled = false;
+      btn.textContent = "Entrar com Google";
+    });
   });
 })();

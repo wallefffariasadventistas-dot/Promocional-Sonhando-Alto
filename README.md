@@ -14,9 +14,9 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados
   imagens e a identidade visual da campanha, os benefícios do projeto e um
   formulário que coleta **Nome, Telefone, Idade, Curso de interesse, Cidade
   e Distrito**.
-- **Painel administrativo** (`/admin/`): login por **e-mail e senha**,
-  autenticado pelo **Firebase Authentication**. Lista todos os leads
-  recebidos, permite buscar e baixar os dados em **Excel (.xlsx)** ou
+- **Painel administrativo** (`/admin/`): um botão só, **"Entrar com
+  Google"**, autenticado pelo **Firebase Authentication**. Lista todos os
+  leads recebidos, permite buscar e baixar os dados em **Excel (.xlsx)** ou
   **PDF**. Link discreto no rodapé da página pública.
 - **API** (`/api/leads`, `/api/admin/...`): funções serverless que recebem
   os cadastros e servem o painel administrativo. Os dados ficam salvos no
@@ -37,11 +37,13 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados
      e crie um projeto (ou use um existente).
    - Ative o **Firestore Database** (modo produção) em Build → Firestore
      Database → Create database.
-   - Ative o **login por e-mail/senha**: Build → Authentication → Sign-in
-     method → ative o provedor **"E-mail/senha"**.
-   - Crie a conta do admin: Authentication → Users → **Add user**, com o
-     e-mail e senha que a pessoa vai usar para entrar no painel. Repita
-     para cada pessoa que precisar de acesso.
+   - Ative o **login com Google**: Build → Authentication → Sign-in method
+     → ative o provedor **"Google"**.
+   - Autorize o domínio do site: Authentication → Settings → **Authorized
+     domains** → **Add domain** → adicione
+     `promocional-sonhando-alto.vercel.app` (e depois `sonhandoalto.mpi.org.br`
+     quando o domínio próprio estiver configurado). Sem isso o botão do
+     Google dá erro de "domínio não autorizado".
    - Gere a credencial do backend: **Configurações do projeto** (ícone de
      engrenagem) → **Contas de serviço** → **Gerar nova chave privada**.
      Isso baixa um arquivo `.json` — guarde-o, ele não pode ser baixado de
@@ -64,10 +66,11 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados
 
    E sempre adicione também:
    - `SESSION_SECRET` — valor aleatório forte (ex: `openssl rand -hex 32`)
-   - `ADMIN_EMAILS` (opcional) — lista separada por vírgula dos e-mails que
-     podem acessar o painel (ex: `pessoa1@gmail.com,pessoa2@gmail.com`). Se
-     deixar em branco, qualquer usuário cadastrado no Firebase Authentication
-     do projeto pode entrar.
+   - `ADMIN_EMAILS` — **obrigatório**: lista separada por vírgula dos e-mails
+     Google que podem acessar o painel (ex:
+     `pessoa1@gmail.com,pessoa2@gmail.com`). Como o login é com Google,
+     qualquer pessoa com conta Google consegue se autenticar — sem essa
+     variável configurada, ninguém entra no painel (por segurança).
 
 4. **Redeploy**
    Depois de salvar as variáveis, dispare um novo deploy (Vercel →
@@ -126,16 +129,14 @@ já configuradas no Vercel.
 
 ## Segurança do painel administrativo
 
-- O login é feito com e-mail e senha reais, verificados pelo **Firebase
-  Authentication** — a senha nunca passa pelo nosso servidor nem é
-  armazenada por nós; quem cuida disso é o Firebase.
-- Só existem contas para quem foi cadastrado manualmente em Firebase Console
-  → Authentication → Users. Não há tela de cadastro público — ninguém cria
-  conta sozinho.
-- `ADMIN_EMAILS` (opcional) adiciona uma segunda trava: mesmo alguém com
-  conta no Firebase Authentication do projeto só entra no painel se o
-  e-mail estiver nessa lista. Útil se o mesmo projeto Firebase for usado
-  para outra coisa também.
+- O login é feito com **Google** (Firebase Authentication) — a senha da
+  conta Google da pessoa nunca passa pelo nosso servidor.
+- Como qualquer pessoa com conta Google consegue se autenticar (não é uma
+  lista fechada de usuários, como seria com e-mail/senha manual),
+  `ADMIN_EMAILS` é **obrigatório**: só quem estiver nessa lista consegue
+  passar do login, mesmo já tendo feito login com o Google. Sem essa
+  variável configurada, o acesso fica bloqueado para todo mundo (por
+  segurança, em vez de liberar geral por padrão).
 - Depois que o Firebase confirma o login, nosso backend verifica o token
   (`firebase-admin`) e então emite seu próprio cookie de sessão (JWT,
   `httpOnly`, válido por 4 horas) — as rotas `/api/admin/leads`,
@@ -152,7 +153,7 @@ já configuradas no Vercel.
 public/
   index.html            Página pública de captura de leads
   admin/
-    index.html           Login do admin (e-mail/senha via Firebase Auth)
+    index.html           Login do admin (botão "Entrar com Google")
     dashboard.html         Painel com a lista de leads
   css/, js/, images/       Estilos, scripts e imagens da campanha
   js/firebase-config.js    Configuração pública do app Firebase (client-side)
