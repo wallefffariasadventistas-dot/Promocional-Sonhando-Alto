@@ -31,30 +31,19 @@
     })
     .catch(() => {});
 
-  // Trata o retorno do Google depois do redirecionamento.
-  auth
-    .getRedirectResult()
-    .then((result) => {
-      if (result && result.user) {
-        btn.disabled = true;
-        btn.textContent = "Entrando...";
-        return completeLogin(result.user);
-      }
-    })
-    .catch((err) => {
-      setMessage(err.message || "Não foi possível entrar com o Google.", "error");
-      btn.disabled = false;
-      btn.textContent = "Entrar com Google";
-    });
-
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", async () => {
     setMessage("", "");
     btn.disabled = true;
-    btn.textContent = "Redirecionando para o Google...";
-    auth.signInWithRedirect(provider).catch((err) => {
-      setMessage(err.message || "Não foi possível iniciar o login.", "error");
+    btn.textContent = "Entrando...";
+
+    try {
+      const result = await auth.signInWithPopup(provider);
+      await completeLogin(result.user);
+    } catch (err) {
+      setMessage(err.message || "Não foi possível entrar com o Google.", "error");
+      await auth.signOut().catch(() => {});
       btn.disabled = false;
       btn.textContent = "Entrar com Google";
-    });
+    }
   });
 })();
