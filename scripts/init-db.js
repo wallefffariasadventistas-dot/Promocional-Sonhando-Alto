@@ -1,14 +1,21 @@
-// Cria a tabela "leads" no Postgres, caso ainda não exista.
+// Testa a conexão com o Firestore usando FIREBASE_SERVICE_ACCOUNT_BASE64.
 // Uso local: vercel env pull .env.local && npm run init-db
 require("dotenv").config({ path: ".env.local" });
-const { ensureSchema } = require("../lib/db");
+const { checkConnection, usingLocalFallback } = require("../lib/db");
 
-ensureSchema()
+if (usingLocalFallback) {
+  console.log(
+    "FIREBASE_SERVICE_ACCOUNT_BASE64 não configurado — nada para testar (modo local em arquivo)."
+  );
+  process.exit(0);
+}
+
+checkConnection()
   .then(() => {
-    console.log('Tabela "leads" pronta.');
+    console.log("Conexão com o Firestore OK.");
     process.exit(0);
   })
   .catch((err) => {
-    console.error("Erro ao preparar o banco:", err);
+    console.error("Erro ao conectar ao Firestore:", err);
     process.exit(1);
   });

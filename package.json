@@ -6,12 +6,13 @@
   "scripts": {
     "dev": "npx vercel dev",
     "hash-password": "node scripts/hash-password.js",
-    "init-db": "node scripts/init-db.js"
+    "init-db": "node scripts/init-db.js",
+    "encode-firebase-key": "node scripts/encode-firebase-key.js"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
     "bcryptjs": "^2.4.3",
     "exceljs": "^4.4.0",
+    "firebase-admin": "^14.5.0",
     "jsonwebtoken": "^9.0.2",
     "pdfkit": "^0.15.0"
   },
