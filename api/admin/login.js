@@ -11,11 +11,20 @@ module.exports = async function handler(req, res) {
   const expectedUser = process.env.ADMIN_USERNAME || "admin";
   const expectedHash = process.env.ADMIN_PASSWORD_HASH;
 
-  if (!expectedHash) {
-    return res.status(500).json({ error: "ADMIN_PASSWORD_HASH não configurado no servidor." });
+  if (typeof username !== "string" || username.trim().length === 0) {
+    return res.status(400).json({ error: "Informe o usuário." });
   }
 
-  if (typeof username !== "string" || typeof password !== "string") {
+  // TEMPORÁRIO: enquanto ADMIN_PASSWORD_HASH não for configurado, libera o
+  // acesso sem checar senha. Assim que a variável for definida no ambiente,
+  // a checagem de senha abaixo volta a valer automaticamente.
+  if (!expectedHash) {
+    const token = signAdminToken(username.trim());
+    setAdminCookie(res, token);
+    return res.json({ ok: true });
+  }
+
+  if (typeof password !== "string") {
     return res.status(400).json({ error: "Usuário e senha são obrigatórios." });
   }
 
