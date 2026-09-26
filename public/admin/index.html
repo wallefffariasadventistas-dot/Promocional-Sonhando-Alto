@@ -17,10 +17,20 @@
     <div class="admin-login__card">
       <p class="admin-login__eyebrow">Sonhando Alto</p>
       <h1>Área do administrador</h1>
-      <p class="admin-login__hint">Acesso temporário sem senha — em breve com login protegido.</p>
+      <p class="admin-login__hint">Acesso restrito à equipe do projeto.</p>
 
-      <button type="button" class="btn btn--primary btn--block" id="login-btn">Entrar no painel</button>
-      <p id="login-message" class="form-message" role="status" aria-live="polite"></p>
+      <form id="login-form">
+        <div class="field">
+          <label for="username">Usuário</label>
+          <input type="text" id="username" name="username" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Senha</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn btn--primary btn--block" id="login-btn">Entrar</button>
+        <p id="login-message" class="form-message" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 

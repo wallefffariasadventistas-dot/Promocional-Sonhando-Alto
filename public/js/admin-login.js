@@ -1,4 +1,5 @@
 (function () {
+  const form = document.getElementById("login-form");
   const btn = document.getElementById("login-btn");
   const messageEl = document.getElementById("login-message");
 
@@ -15,18 +16,21 @@
     })
     .catch(() => {});
 
-  btn.addEventListener("click", async () => {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
     setMessage("", "");
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
     btn.disabled = true;
     btn.textContent = "Entrando...";
 
     try {
-      // TEMPORÁRIO: sem formulário de usuário/senha enquanto o login não
-      // está protegido por senha no backend (ADMIN_PASSWORD_HASH).
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: "admin" }),
+        body: JSON.stringify({ username, password }),
       });
       const data = await response.json().catch(() => ({}));
 
@@ -38,7 +42,7 @@
     } catch (err) {
       setMessage(err.message, "error");
       btn.disabled = false;
-      btn.textContent = "Entrar no painel";
+      btn.textContent = "Entrar";
     }
   });
 })();
