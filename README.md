@@ -63,25 +63,30 @@ primeira requisição à API — não é necessário rodar migração manual.
 
 ## Como rodar localmente
 
-1. Instale as dependências e a CLI do Vercel (via `npx`, sem instalar
-   globalmente):
+Não é necessário ter um Postgres configurado para testar localmente: se
+nenhuma variável de conexão for encontrada, o backend salva os leads
+automaticamente em um arquivo temporário (`lib/db.js`), só para
+desenvolvimento. Assim que o Postgres estiver conectado (local ou em
+produção), ele passa a ser usado no lugar do arquivo, sem precisar mudar
+nada no código.
+
+1. Instale as dependências:
 
    ```bash
    npm install
    ```
 
-2. Puxe as variáveis de ambiente do projeto já conectado no Vercel
-   (inclui `POSTGRES_URL` automaticamente):
+2. Crie um `.env.local` mínimo (sem `POSTGRES_URL`/`DATABASE_URL` — o
+   fallback local cuida disso por enquanto):
 
    ```bash
-   npx vercel link
-   npx vercel env pull .env.local
+   cp .env.example .env.local
+   npm run hash-password -- "SuaSenhaForte123"
    ```
 
-   Se ainda não configurou o projeto no Vercel, copie `.env.example` para
-   `.env.local` e preencha manualmente (`POSTGRES_URL` de um Postgres de
-   testes, `SESSION_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` — veja
-   o passo 3 da seção acima para gerar o hash).
+   Copie o hash gerado para `ADMIN_PASSWORD_HASH` no `.env.local`, defina
+   `SESSION_SECRET` (ex: `openssl rand -hex 32`) e apague a linha
+   `DATABASE_URL=` (ou deixe em branco).
 
 3. Suba o ambiente de desenvolvimento (emula as funções serverless
    localmente):
@@ -93,7 +98,14 @@ primeira requisição à API — não é necessário rodar migração manual.
 4. Acesse:
    - Página de captação: http://localhost:3000
    - Painel do administrador: http://localhost:3000/admin/
-     (usuário/senha configurados no `.env.local`)
+     (usuário/senha configurados no `.env.local`), ou clique em
+     "Área administrativa" no rodapé da página pública
+   - Diagnóstico: http://localhost:3000/api/health — mostra se está usando
+     o arquivo local ou o Postgres, e se a conexão está OK
+
+Quando o projeto já estiver conectado ao Postgres no Vercel, rode
+`npx vercel link && npx vercel env pull .env.local` para puxar a
+`POSTGRES_URL` de verdade em vez do fallback local.
 
 ## Segurança do painel administrativo
 
