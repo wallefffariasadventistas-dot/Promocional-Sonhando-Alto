@@ -4,11 +4,6 @@
   const auth = firebase.auth();
   const provider = new firebase.auth.GoogleAuthProvider();
 
-  const POPUP_BLOCKED_CODES = [
-    "auth/popup-blocked",
-    "auth/operation-not-supported-in-this-environment",
-  ];
-
   function setMessage(text, type) {
     messageEl.textContent = text;
     messageEl.className = "form-message" + (type ? ` form-message--${type}` : "");
@@ -25,37 +20,20 @@
     if (user) window.location.href = "/admin/dashboard.html";
   });
 
-  // Trata o retorno do Google quando o pop-up foi bloqueado e caímos para
-  // o modo de redirecionamento (abaixo). Erros aqui aparecem na mensagem;
-  // sucesso é tratado pelo onAuthStateChanged acima.
+  // Trata o retorno do Google depois do redirecionamento.
   auth.getRedirectResult().catch((err) => {
     setMessage(err.message || "Não foi possível entrar com o Google.", "error");
     resetButton();
   });
 
-  btn.addEventListener("click", async () => {
+  btn.addEventListener("click", () => {
     setMessage("", "");
     btn.disabled = true;
-    btn.textContent = "Entrando...";
+    btn.textContent = "Redirecionando para o Google...";
 
-    try {
-      await auth.signInWithPopup(provider);
-      // onAuthStateChanged cuida do redirecionamento para o painel.
-    } catch (err) {
-      if (POPUP_BLOCKED_CODES.includes(err.code)) {
-        btn.textContent = "Redirecionando para o Google...";
-        auth.signInWithRedirect(provider).catch((redirectErr) => {
-          setMessage(redirectErr.message || "Não foi possível entrar com o Google.", "error");
-          resetButton();
-        });
-        return;
-      }
-      if (err.code === "auth/popup-closed-by-user") {
-        resetButton();
-        return;
-      }
-      setMessage(err.message || "Não foi possível entrar com o Google.", "error");
+    auth.signInWithRedirect(provider).catch((err) => {
+      setMessage(err.message || "Não foi possível iniciar o login.", "error");
       resetButton();
-    }
+    });
   });
 })();
