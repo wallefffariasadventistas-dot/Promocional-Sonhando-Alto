@@ -11,18 +11,20 @@
 />
 <link rel="stylesheet" href="/css/style.css" />
 <link rel="stylesheet" href="/css/admin.css" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 </head>
 <body class="admin-body">
   <div class="admin-login">
     <div class="admin-login__card">
       <p class="admin-login__eyebrow">Sonhando Alto</p>
       <h1>Área do administrador</h1>
-      <p class="admin-login__hint">Acesso restrito à equipe do projeto.</p>
+      <p class="admin-login__hint">Entre com o e-mail cadastrado no projeto.</p>
 
       <form id="login-form">
         <div class="field">
-          <label for="username">Usuário</label>
-          <input type="text" id="username" name="username" autocomplete="username" required />
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" autocomplete="username" required />
         </div>
         <div class="field">
           <label for="password">Senha</label>
@@ -34,6 +36,7 @@
     </div>
   </div>
 
+  <script src="/js/firebase-config.js"></script>
   <script src="/js/admin-login.js"></script>
 </body>
 </html>

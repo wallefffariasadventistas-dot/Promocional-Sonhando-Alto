@@ -72,6 +72,7 @@
 
   logoutBtn.addEventListener("click", async () => {
     await fetch("/api/admin/logout", { method: "POST" });
+    await firebase.auth().signOut().catch(() => {});
     window.location.href = "/admin/";
   });
 

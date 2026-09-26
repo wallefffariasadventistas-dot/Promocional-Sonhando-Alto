@@ -1,12 +1,18 @@
-const bcrypt = require("bcryptjs");
+const { verifyIdToken } = require("../../lib/firebase-auth");
 const { signAdminToken, setAdminCookie } = require("../../lib/auth");
 
-// TEMPORÁRIO: credenciais fixas usadas só enquanto ADMIN_PASSWORD_HASH não é
-// configurado no ambiente. Troque assim que possível gerando um hash de
-// verdade (npm run hash-password) e definindo ADMIN_PASSWORD_HASH no Vercel —
-// a checagem abaixo passa a exigi-lo automaticamente, sem mexer no código.
-const DEFAULT_USERNAME = "admin";
-const DEFAULT_PASSWORD = "12345";
+function isAllowedEmail(email) {
+  const allowlist = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  // Sem lista configurada: qualquer e-mail cadastrado no Firebase
+  // Authentication do projeto pode entrar (o acesso já é controlado por lá).
+  if (allowlist.length === 0) return true;
+
+  return allowlist.includes(email.toLowerCase());
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -15,41 +21,26 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { username, password } = req.body || {};
-    const expectedUser = process.env.ADMIN_USERNAME || DEFAULT_USERNAME;
-    const expectedHash = process.env.ADMIN_PASSWORD_HASH;
-
-    if (typeof username !== "string" || username.trim().length === 0) {
-      return res.status(400).json({ error: "Informe o usuário." });
+    const { idToken } = req.body || {};
+    if (typeof idToken !== "string" || idToken.length === 0) {
+      return res.status(400).json({ error: "Token de login ausente." });
     }
 
-    if (!expectedHash) {
-      const userOk = username.trim() === expectedUser;
-      const passOk = password === DEFAULT_PASSWORD;
-      if (!userOk || !passOk) {
-        return res.status(401).json({ error: "Usuário ou senha inválidos." });
-      }
-      const token = signAdminToken(username.trim());
-      setAdminCookie(res, token);
-      return res.json({ ok: true });
+    const decoded = await verifyIdToken(idToken);
+
+    if (!decoded.email) {
+      return res.status(401).json({ error: "Esta conta não tem um e-mail associado." });
     }
 
-    if (typeof password !== "string") {
-      return res.status(400).json({ error: "Usuário e senha são obrigatórios." });
+    if (!isAllowedEmail(decoded.email)) {
+      return res.status(403).json({ error: "Este e-mail não tem acesso ao painel administrativo." });
     }
 
-    const userOk = username === expectedUser;
-    const passOk = await bcrypt.compare(password, expectedHash);
-
-    if (!userOk || !passOk) {
-      return res.status(401).json({ error: "Usuário ou senha inválidos." });
-    }
-
-    const token = signAdminToken(username);
+    const token = signAdminToken(decoded.email);
     setAdminCookie(res, token);
     return res.json({ ok: true });
   } catch (err) {
     console.error("Erro no login do admin:", err);
-    return res.status(500).json({ error: "Erro interno ao tentar entrar. Tente novamente." });
+    return res.status(401).json({ error: "Não foi possível validar o login. Tente novamente." });
   }
 };

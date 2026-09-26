@@ -13,8 +13,7 @@ module.exports = async function handler(req, res) {
       FIREBASE_CLIENT_EMAIL: hasEnvVar("FIREBASE_CLIENT_EMAIL"),
       FIREBASE_PRIVATE_KEY: hasEnvVar("FIREBASE_PRIVATE_KEY"),
       SESSION_SECRET: hasEnvVar("SESSION_SECRET"),
-      ADMIN_USERNAME: hasEnvVar("ADMIN_USERNAME"),
-      ADMIN_PASSWORD_HASH: hasEnvVar("ADMIN_PASSWORD_HASH"),
+      ADMIN_EMAILS: hasEnvVar("ADMIN_EMAILS"),
     },
     database: { mode: null, connected: false, error: null },
   };

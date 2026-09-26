@@ -5,7 +5,8 @@ formulário de captura de leads e um painel administrativo protegido por
 login para visualizar e exportar os dados recebidos.
 
 Domínio oficial: **sonhandoalto.mpi.org.br**. Projeto pensado para rodar
-no **Vercel** (funções serverless em `/api` + Firestore como banco de dados).
+no **Vercel** (funções serverless em `/api` + Firestore como banco de dados
++ Firebase Authentication para o login do admin).
 
 ## O que tem aqui
 
@@ -13,18 +14,13 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados).
   imagens e a identidade visual da campanha, os benefícios do projeto e um
   formulário que coleta **Nome, Telefone, Idade, Curso de interesse, Cidade
   e Distrito**.
-- **Painel administrativo** (`/admin/`): acesso restrito por usuário e
-  senha. Lista todos os leads recebidos, permite buscar e baixar os dados
-  em **Excel (.xlsx)** ou **PDF**. Link discreto no rodapé da página pública.
+- **Painel administrativo** (`/admin/`): login por **e-mail e senha**,
+  autenticado pelo **Firebase Authentication**. Lista todos os leads
+  recebidos, permite buscar e baixar os dados em **Excel (.xlsx)** ou
+  **PDF**. Link discreto no rodapé da página pública.
 - **API** (`/api/leads`, `/api/admin/...`): funções serverless que recebem
   os cadastros e servem o painel administrativo. Os dados ficam salvos no
   **Firestore** (Firebase), acessado pelo backend via `firebase-admin`.
-
-> ⚠️ **Estado atual (temporário):** enquanto `ADMIN_PASSWORD_HASH` não é
-> configurado, o login do admin aceita usuário `admin` e senha `12345`
-> (fixos no código). Isso é só para destravar o acesso rapidamente — veja
-> "Segurança do painel administrativo" abaixo para trocar por uma senha de
-> verdade quando quiser.
 
 ## Implantação no Vercel (passo a passo)
 
@@ -36,25 +32,24 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados).
    `/api` vira funções serverless, `/public` vira o site estático) — não é
    preciso configurar build command nem output directory.
 
-2. **Criar o projeto Firebase e gerar a credencial**
+2. **Criar o projeto Firebase**
    - Acesse [console.firebase.google.com](https://console.firebase.google.com)
      e crie um projeto (ou use um existente).
    - Ative o **Firestore Database** (modo produção) em Build → Firestore
      Database → Create database.
-   - Vá em **Configurações do projeto** (ícone de engrenagem) → **Contas de
-     serviço** → **Gerar nova chave privada**. Isso baixa um arquivo `.json`
-     — guarde-o, ele não pode ser baixado de novo (só gerar outro).
+   - Ative o **login por e-mail/senha**: Build → Authentication → Sign-in
+     method → ative o provedor **"E-mail/senha"**.
+   - Crie a conta do admin: Authentication → Users → **Add user**, com o
+     e-mail e senha que a pessoa vai usar para entrar no painel. Repita
+     para cada pessoa que precisar de acesso.
+   - Gere a credencial do backend: **Configurações do projeto** (ícone de
+     engrenagem) → **Contas de serviço** → **Gerar nova chave privada**.
+     Isso baixa um arquivo `.json` — guarde-o, ele não pode ser baixado de
+     novo (só gerar outro).
 
 3. **Configurar as variáveis de ambiente**
-   Gere também o hash da senha do admin:
-
-   ```bash
-   npm install
-   npm run hash-password -- "SuaSenhaForte123"
-   ```
-
-   Em **Settings → Environment Variables** no Vercel, adicione, usando **uma**
-   das duas opções abaixo para a credencial do Firebase:
+   Em **Settings → Environment Variables** no Vercel, adicione, usando
+   **uma** das duas opções abaixo para a credencial do Firebase:
 
    - **Opção A — sem rodar comando nenhum:** abra o arquivo `.json` baixado
      (em qualquer editor de texto ou app de notas) e copie três campos dele
@@ -69,8 +64,10 @@ no **Vercel** (funções serverless em `/api` + Firestore como banco de dados).
 
    E sempre adicione também:
    - `SESSION_SECRET` — valor aleatório forte (ex: `openssl rand -hex 32`)
-   - `ADMIN_USERNAME` — usuário do painel (ex: `admin`)
-   - `ADMIN_PASSWORD_HASH` — o hash gerado acima
+   - `ADMIN_EMAILS` (opcional) — lista separada por vírgula dos e-mails que
+     podem acessar o painel (ex: `pessoa1@gmail.com,pessoa2@gmail.com`). Se
+     deixar em branco, qualquer usuário cadastrado no Firebase Authentication
+     do projeto pode entrar.
 
 4. **Redeploy**
    Depois de salvar as variáveis, dispare um novo deploy (Vercel →
@@ -86,12 +83,13 @@ coleção `leads` é criada automaticamente no primeiro cadastro.
 
 ## Como rodar localmente
 
-Não é necessário ter o Firebase configurado para testar localmente: se
-`FIREBASE_SERVICE_ACCOUNT_BASE64` não estiver definida, o backend salva os
-leads automaticamente em um arquivo temporário (`lib/db.js`), só para
-desenvolvimento. Assim que a variável existir (local ou em produção), o
-Firestore passa a ser usado no lugar do arquivo, sem precisar mudar nada no
-código.
+Não é necessário ter o Firebase configurado para testar o formulário e o
+armazenamento localmente: se nenhuma credencial de backend for encontrada, o
+backend salva os leads automaticamente em um arquivo temporário (`lib/db.js`),
+só para desenvolvimento. **O login do admin, porém, sempre depende do
+Firebase Authentication de verdade** (não tem fallback local), então para
+testar a tela de login é preciso ter o Firebase configurado como no passo 2
+acima.
 
 1. Instale as dependências:
 
@@ -99,16 +97,14 @@ código.
    npm install
    ```
 
-2. Crie um `.env.local` mínimo (sem `FIREBASE_SERVICE_ACCOUNT_BASE64` — o
-   fallback local cuida disso por enquanto):
+2. Crie um `.env.local` com pelo menos `SESSION_SECRET`:
 
    ```bash
    cp .env.example .env.local
-   npm run hash-password -- "SuaSenhaForte123"
    ```
 
-   Copie o hash gerado para `ADMIN_PASSWORD_HASH` no `.env.local` e defina
-   `SESSION_SECRET` (ex: `openssl rand -hex 32`).
+   Defina `SESSION_SECRET` (ex: `openssl rand -hex 32`) e, se quiser testar
+   o login, preencha também as variáveis do Firebase (ver passo 3 acima).
 
 3. Suba o ambiente de desenvolvimento (emula as funções serverless
    localmente):
@@ -122,30 +118,29 @@ código.
    - Painel do administrador: http://localhost:3000/admin/, ou clique em
      "Área administrativa" no rodapé da página pública
    - Diagnóstico: http://localhost:3000/api/health — mostra se está usando
-     o arquivo local ou o Firestore, e se a conexão está OK
+     o arquivo local ou o Firestore para os leads, e se a conexão está OK
 
-Quando quiser testar com o Firestore de verdade localmente, rode
-`npx vercel link && npx vercel env pull .env.local` para puxar a variável
-já configurada no Vercel.
+Quando quiser testar com as credenciais de verdade localmente, rode
+`npx vercel link && npx vercel env pull .env.local` para puxar as variáveis
+já configuradas no Vercel.
 
 ## Segurança do painel administrativo
 
-- Somente quem tiver usuário e senha configurados nas variáveis de
-  ambiente consegue entrar no painel — não existe cadastro de novos
-  administradores pela interface.
-- **Estado atual**: sem `ADMIN_PASSWORD_HASH` configurado, o login aceita
-  a senha fixa `12345` (usuário `admin`) — ver aviso no topo deste arquivo.
-  Para usar uma senha de verdade: gere o hash (`npm run hash-password --
-  "suaSenha"`) e defina `ADMIN_PASSWORD_HASH` no Vercel — a checagem forte
-  passa a valer automaticamente, sem mexer em código.
-- A senha real (quando configurada) nunca fica salva em texto puro: apenas
-  o hash bcrypt vai na variável de ambiente.
-- A sessão do admin é um cookie assinado (JWT), `httpOnly` e válido por 4
-  horas — não depende de estado em memória, então funciona corretamente em
-  ambiente serverless (múltiplas instâncias/regiões).
-- As rotas `/api/admin/leads`, `/api/admin/export-xlsx` e
-  `/api/admin/export-pdf` exigem esse cookie válido; sem login, a API
-  responde `401`.
+- O login é feito com e-mail e senha reais, verificados pelo **Firebase
+  Authentication** — a senha nunca passa pelo nosso servidor nem é
+  armazenada por nós; quem cuida disso é o Firebase.
+- Só existem contas para quem foi cadastrado manualmente em Firebase Console
+  → Authentication → Users. Não há tela de cadastro público — ninguém cria
+  conta sozinho.
+- `ADMIN_EMAILS` (opcional) adiciona uma segunda trava: mesmo alguém com
+  conta no Firebase Authentication do projeto só entra no painel se o
+  e-mail estiver nessa lista. Útil se o mesmo projeto Firebase for usado
+  para outra coisa também.
+- Depois que o Firebase confirma o login, nosso backend verifica o token
+  (`firebase-admin`) e então emite seu próprio cookie de sessão (JWT,
+  `httpOnly`, válido por 4 horas) — as rotas `/api/admin/leads`,
+  `/api/admin/export-xlsx` e `/api/admin/export-pdf` exigem esse cookie;
+  sem ele, a API responde `401`.
 - O formulário público tem um campo "honeypot" invisível para reduzir spam
   de bots simples. Para um filtro mais robusto contra abuso (rate limit
   real), considere ativar o **Vercel Firewall / Attack Challenge Mode** no
@@ -157,13 +152,14 @@ já configurada no Vercel.
 public/
   index.html            Página pública de captura de leads
   admin/
-    index.html           Login do admin
+    index.html           Login do admin (e-mail/senha via Firebase Auth)
     dashboard.html         Painel com a lista de leads
   css/, js/, images/       Estilos, scripts e imagens da campanha
+  js/firebase-config.js    Configuração pública do app Firebase (client-side)
 api/
   leads.js                 POST /api/leads — cadastro público
   admin/
-    login.js                POST /api/admin/login
+    login.js                POST /api/admin/login — verifica o token do Firebase
     logout.js               POST /api/admin/logout
     session.js               GET /api/admin/session
     leads.js                  GET /api/admin/leads (protegido)
@@ -171,12 +167,13 @@ api/
     export-pdf.js               GET /api/admin/export-pdf (protegido)
   health.js                  GET /api/health — diagnóstico de configuração
 lib/
-  db.js                     Acesso ao Firestore (firebase-admin) + fallback local
-  auth.js                   Cookie JWT de sessão do admin
-  validate-lead.js            Validação dos campos do formulário
-  courses.js                  Lista de cursos de interesse
+  firebase.js               Inicialização compartilhada do firebase-admin
+  db.js                      Acesso ao Firestore (leads) + fallback local
+  firebase-auth.js            Verifica o ID token do Firebase Authentication
+  auth.js                      Cookie JWT de sessão do admin
+  validate-lead.js               Validação dos campos do formulário
+  courses.js                     Lista de cursos de interesse
 scripts/
-  hash-password.js            Utilitário para gerar o hash da senha do admin
-  encode-firebase-key.js        Converte o .json da conta de serviço em base64
+  encode-firebase-key.js       Converte o .json da conta de serviço em base64
   init-db.js                    Testa a conexão com o Firestore
 ```
