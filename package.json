@@ -1,20 +1,6 @@
 {
   "name": "promocional-sonhando-alto",
-  "version": "1.0.0",
-  "description": "Pagina de captura de leads do projeto Sonhando Alto",
-  "private": true,
-  "scripts": {
-    "dev": "npx vercel dev",
-    "init-db": "node scripts/init-db.js",
-    "encode-firebase-key": "node scripts/encode-firebase-key.js"
-  },
-  "dependencies": {
-    "exceljs": "^4.4.0",
-    "firebase-admin": "^14.5.0",
-    "jsonwebtoken": "^9.0.2",
-    "pdfkit": "^0.15.0"
-  },
-  "devDependencies": {
-    "dotenv": "^16.4.5"
-  }
+  "version": "2.0.0",
+  "description": "Pagina de captura de leads do projeto Sonhando Alto (site estatico, Firebase no navegador)",
+  "private": true
 }

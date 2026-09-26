@@ -13,14 +13,18 @@
 <link rel="stylesheet" href="/css/admin.css" />
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="admin-body">
   <header class="admin-header">
     <div class="admin-header__inner">
       <h1>Leads — Sonhando Alto</h1>
       <div class="admin-header__actions">
-        <a class="btn btn--ghost btn--small" href="/api/admin/export-xlsx">Baixar Excel</a>
-        <a class="btn btn--ghost btn--small" href="/api/admin/export-pdf">Baixar PDF</a>
+        <button class="btn btn--ghost btn--small" id="export-xlsx-btn">Baixar Excel</button>
+        <button class="btn btn--ghost btn--small" id="export-pdf-btn">Baixar PDF</button>
         <button class="btn btn--ghost btn--small" id="logout-btn">Sair</button>
       </div>
     </div>
