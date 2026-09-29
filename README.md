@@ -20,6 +20,13 @@ dados) é feito **direto no navegador**, falando com o **Firebase**:
 Por isso **não é necessário configurar nenhuma variável de ambiente no
 Vercel**. Toda a configuração acontece no Firebase Console.
 
+## Plataforma de aulas (`/aulas/`)
+
+Área de membros para a formação de colportores (login, módulos, aulas em
+vídeo, progresso e painel do administrador). Veja
+[`public/aulas/README.md`](public/aulas/README.md). As regras completas do
+Firestore (leads + plataforma) estão em [`firestore.rules`](firestore.rules).
+
 ## O que tem aqui
 
 - **Página pública** (`/`): apresenta a campanha "Play no Futuro!" com um

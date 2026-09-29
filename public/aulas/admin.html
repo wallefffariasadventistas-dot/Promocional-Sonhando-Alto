@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/aulas/css/plataforma.css" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<title>Painel — Formação de Colportores</title>
+</head>
+<body class="app-body">
+  <header class="topbar">
+    <a class="topbar__brand" href="#/">
+      <span class="brand__logo" data-brand-logo>▶</span>
+      <span><span data-brand-name>Formação de Colportores</span> <small class="tag">Admin</small></span>
+    </a>
+    <nav class="topbar__nav" id="nav">
+      <a href="#/" data-nav="">Painel</a>
+      <a href="#/modulos" data-nav="modulos">Módulos</a>
+      <a href="#/aulas" data-nav="aulas">Aulas</a>
+      <a href="#/alunos" data-nav="alunos">Alunos <span class="pill" id="pend-count" hidden>0</span></a>
+      <a href="#/config" data-nav="config">Configurações</a>
+    </nav>
+    <div class="topbar__user">
+      <a class="btn btn--ghost btn--sm" href="/aulas/aluno.html">Ver como aluno</a>
+      <button class="btn btn--ghost btn--sm" id="sair" type="button">Sair</button>
+    </div>
+  </header>
+  <main id="view" class="view"><div class="loading">Carregando…</div></main>
+
+  <dialog id="modal" class="modal"><div id="modal-body"></div></dialog>
+
+  <script src="/js/firebase-config.js"></script>
+  <script src="/aulas/js/core.js"></script>
+  <script src="/aulas/js/admin.js"></script>
+</body>
+</html>

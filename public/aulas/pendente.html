@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/aulas/css/plataforma.css" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<title>Aguardando aprovação</title>
+</head>
+<body class="auth-body">
+  <main class="auth">
+    <div class="auth__brand">
+      <div class="brand__logo" data-brand-logo>▶</div>
+      <h1 data-brand-name>Formação de Colportores</h1>
+    </div>
+    <div class="auth__card" style="text-align:center">
+      <div class="big-icon">⏳</div>
+      <h2>Aguardando aprovação</h2>
+      <p id="pendente-msg" class="muted"></p>
+      <p class="hint">Esta página libera sozinha quando você for aprovado.</p>
+      <button class="btn btn--ghost btn--block" id="sair" type="button">Sair</button>
+    </div>
+  </main>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/aulas/js/core.js"></script>
+  <script>
+    (async () => {
+      await PL.loadConfig();
+      document.getElementById("pendente-msg").textContent = PL.config.mensagemPendente;
+      document.getElementById("sair").onclick = PL.logout;
+      PL.auth.onAuthStateChanged((user) => {
+        if (!user) return void (location.href = "/aulas/");
+        PL.db.collection("users").doc(user.uid).onSnapshot((s) => {
+          const p = s.data();
+          if (!p) return;
+          if (p.status === "approved") location.href = p.role === "admin" ? "/aulas/admin.html" : "/aulas/aluno.html";
+          if (p.status === "blocked") PL.logout();
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

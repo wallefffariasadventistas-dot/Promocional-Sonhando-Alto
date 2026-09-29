@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/aulas/css/plataforma.css" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<title>Minhas aulas</title>
+</head>
+<body class="app-body">
+  <header class="topbar">
+    <a class="topbar__brand" href="#/">
+      <span class="brand__logo" data-brand-logo>▶</span>
+      <span data-brand-name>Formação de Colportores</span>
+    </a>
+    <nav class="topbar__nav">
+      <a href="#/" data-nav="home">Aulas</a>
+      <a href="#/progresso" data-nav="progresso">Meu progresso</a>
+      <a href="/aulas/admin.html" id="admin-link" hidden>Painel admin</a>
+    </nav>
+    <div class="topbar__user">
+      <span class="avatar" id="avatar">?</span>
+      <span class="topbar__name" id="user-name"></span>
+      <button class="btn btn--ghost btn--sm" id="sair" type="button">Sair</button>
+    </div>
+  </header>
+  <main id="view" class="view"><div class="loading">Carregando…</div></main>
+  <footer class="footer" id="rodape"></footer>
+
+  <script src="/js/firebase-config.js"></script>
+  <script src="/aulas/js/core.js"></script>
+  <script src="/aulas/js/aluno.js"></script>
+</body>
+</html>

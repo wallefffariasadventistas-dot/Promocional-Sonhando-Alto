@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/aulas/css/plataforma.css" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<title>Entrar — Formação de Colportores</title>
+</head>
+<body class="auth-body">
+  <main class="auth">
+    <div class="auth__brand">
+      <div class="brand__logo" data-brand-logo>▶</div>
+      <h1 data-brand-name>Formação de Colportores</h1>
+      <p id="brand-sub">Aprenda, avance e realize seu chamado.</p>
+    </div>
+
+    <div class="auth__card">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab is-active" data-tab="entrar">Entrar</button>
+        <button type="button" class="tab" data-tab="cadastro" id="tab-cadastro">Criar conta</button>
+      </div>
+
+      <form id="form-entrar" class="form" novalidate>
+        <label class="field"><span>E-mail</span>
+          <input type="email" name="email" autocomplete="email" required /></label>
+        <label class="field"><span>Senha</span>
+          <input type="password" name="senha" autocomplete="current-password" required /></label>
+        <button class="btn btn--primary btn--block" type="submit">Entrar</button>
+        <button class="link" type="button" id="esqueci">Esqueci minha senha</button>
+      </form>
+
+      <form id="form-cadastro" class="form" hidden novalidate>
+        <label class="field"><span>Nome completo</span>
+          <input type="text" name="nome" autocomplete="name" maxlength="120" required /></label>
+        <label class="field"><span>Telefone / WhatsApp</span>
+          <input type="tel" name="telefone" autocomplete="tel" maxlength="30" /></label>
+        <label class="field"><span>E-mail</span>
+          <input type="email" name="email" autocomplete="email" required /></label>
+        <label class="field"><span>Senha (mín. 6 caracteres)</span>
+          <input type="password" name="senha" autocomplete="new-password" minlength="6" required /></label>
+        <button class="btn btn--primary btn--block" type="submit">Solicitar acesso</button>
+        <p class="hint">Depois do cadastro, o administrador precisa aprovar seu acesso.</p>
+      </form>
+
+      <p id="msg" class="msg" role="status" aria-live="polite"></p>
+    </div>
+  </main>
+
+  <script src="/js/firebase-config.js"></script>
+  <script src="/aulas/js/core.js"></script>
+  <script src="/aulas/js/login.js"></script>
+</body>
+</html>
