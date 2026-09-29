@@ -5,6 +5,17 @@ progresso automático, e um painel para o administrador. Roda como site
 estático dentro deste mesmo projeto e usa o mesmo Firebase (Authentication
 e-mail/senha + Firestore). Não precisa de servidor.
 
+## Modo local (atual, para testes)
+
+Por enquanto a plataforma roda **sem Firebase e sem senha**: `public/aulas/js/modo.js`
+está com `AULAS_MODO_LOCAL = true`. Tudo é salvo no `localStorage` do navegador,
+começando com dados de demonstração (3 módulos, 7 aulas, 1 cadastro pendente).
+Na tela de entrada há os botões **Entrar como aluno** e **Entrar como
+administrador**, e "Restaurar dados de demonstração".
+
+Para ir ao modo online depois, mude para `false` e siga a configuração do
+Firebase abaixo (o login por e-mail/senha reaparece sozinho).
+
 ## Páginas
 
 | Endereço | Quem usa | O que faz |

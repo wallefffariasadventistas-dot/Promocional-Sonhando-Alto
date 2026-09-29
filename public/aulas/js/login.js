@@ -7,6 +7,15 @@
   if (erro === "bloqueado") setMsg("Seu acesso está bloqueado. Fale com o administrador.", "error");
   if (erro === "semperfil") setMsg("Não encontramos seu cadastro. Crie uma conta.", "error");
 
+  if (window.AULAS_MODO_LOCAL) {
+    $("#online-box").hidden = true;
+    $("#local-box").hidden = false;
+    const entrar = (tipo) => { PL.auth.signInLocal(tipo); location.href = tipo === "admin" ? "/aulas/admin.html" : "/aulas/aluno.html"; };
+    $("#entrar-aluno").onclick = () => entrar("aluno");
+    $("#entrar-admin").onclick = () => entrar("admin");
+    $("#resetar").onclick = () => { if (confirm("Apagar tudo e voltar aos dados de demonstração?")) window.aulasResetLocal(); };
+  }
+
   PL.loadConfig().then((c) => {
     $("#brand-sub").textContent = c.subtitulo;
     if (!c.cadastroAberto) {

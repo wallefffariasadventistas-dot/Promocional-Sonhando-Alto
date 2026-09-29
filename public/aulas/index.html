@@ -6,9 +6,8 @@
 <meta name="robots" content="noindex, nofollow" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/aulas/css/plataforma.css" />
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="/aulas/js/modo.js"></script>
+<script src="/aulas/js/backend.js"></script>
 <title>Entrar — Formação de Colportores</title>
 </head>
 <body class="auth-body">
@@ -20,6 +19,14 @@
     </div>
 
     <div class="auth__card">
+      <div id="local-box" hidden style="text-align:center">
+        <span class="badge">Modo de teste local</span>
+        <p class="muted" style="margin:12px 0 18px">Sem senha por enquanto. Os dados ficam salvos só neste navegador.</p>
+        <button class="btn btn--primary btn--block" type="button" id="entrar-aluno">Entrar como aluno</button>
+        <button class="btn btn--ghost btn--block" type="button" id="entrar-admin" style="margin-top:10px">Entrar como administrador</button>
+        <button class="link" type="button" id="resetar">Restaurar dados de demonstração</button>
+      </div>
+      <div id="online-box">
       <div class="tabs" role="tablist">
         <button type="button" class="tab is-active" data-tab="entrar">Entrar</button>
         <button type="button" class="tab" data-tab="cadastro" id="tab-cadastro">Criar conta</button>
@@ -47,12 +54,12 @@
         <p class="hint">Depois do cadastro, o administrador precisa aprovar seu acesso.</p>
       </form>
 
+      </div>
       <p id="msg" class="msg" role="status" aria-live="polite"></p>
     </div>
   </main>
 
-  <script src="/js/firebase-config.js"></script>
-  <script src="/aulas/js/core.js"></script>
+    <script src="/aulas/js/core.js"></script>
   <script src="/aulas/js/login.js"></script>
 </body>
 </html>
