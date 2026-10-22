@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== Funções auxiliares =====
+    function signedIn() { return request.auth != null; }
+    function userPath(uid) { return /databases/$(database)/documents/users/$(uid); }
+    function hasProfile() { return signedIn() && exists(userPath(request.auth.uid)); }
+    function myProfile() { return get(userPath(request.auth.uid)).data; }
+
+    // Administrador principal (mesma lista de ADMIN_EMAILS em public/aulas/js/core.js)
+    function isBootAdmin() {
+      return signedIn() && request.auth.token.email in ['walleff.fariasadventistas@gmail.com'];
+    }
+    function isAdmin() {
+      return isBootAdmin()
+          || (hasProfile() && myProfile().role == 'admin' && myProfile().status == 'approved');
+    }
+    function isApproved() { return hasProfile() && myProfile().status == 'approved'; }
+    function signupOpen() {
+      return !exists(/databases/$(database)/documents/config/plataforma)
+          || get(/databases/$(database)/documents/config/plataforma).data.get('cadastroAberto', true) != false;
+    }
+
+    // ===== Página de captura de leads (site original) =====
+    match /leads/{leadId} {
+      allow create: if request.resource.data.keys().hasOnly(
+                        ['nome', 'telefone', 'idade', 'curso', 'cidade', 'distrito', 'created_at']
+                      )
+                    && request.resource.data.nome is string
+                    && request.resource.data.nome.size() > 0
+                    && request.resource.data.nome.size() <= 150
+                    && request.resource.data.telefone is string
+                    && request.resource.data.telefone.size() > 0
+                    && request.resource.data.telefone.size() <= 30
+                    && request.resource.data.idade is number
+                    && request.resource.data.idade >= 10
+                    && request.resource.data.idade <= 100
+                    && request.resource.data.curso is string
+                    && request.resource.data.cidade is string
+                    && request.resource.data.cidade.size() <= 100
+                    && request.resource.data.distrito is string
+                    && request.resource.data.distrito.size() <= 100
+                    && request.resource.data.created_at == request.time;
+      allow read: if signedIn()
+                  && request.auth.token.email in ['walleff.fariasadventistas@gmail.com'];
+      allow update, delete: if false;
+    }
+
+    // ===== Plataforma de aulas =====
+
+    // Configurações visuais: públicas para leitura (a tela de login usa), só admin escreve
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Perfis de usuários
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      // Auto-cadastro: sempre "pendente" e "aluno"; o admin aprova depois
+      allow create: if isAdmin()
+                    || (request.auth.uid == uid
+                        && signupOpen()
+                        && request.resource.data.keys().hasOnly(['nome', 'email', 'telefone', 'status', 'role', 'created_at'])
+                        && request.resource.data.status == 'pending'
+                        && request.resource.data.role == 'student'
+                        && request.resource.data.nome is string
+                        && request.resource.data.nome.size() > 0
+                        && request.resource.data.nome.size() <= 120
+                        && request.resource.data.telefone.size() <= 30
+                        && request.resource.data.email == request.auth.token.email
+                        && request.resource.data.created_at == request.time);
+
+      // O aluno só pode alterar nome/telefone; status e perfil só o admin muda
+      allow update: if isAdmin()
+                    || (request.auth.uid == uid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'telefone']));
+      allow delete: if isAdmin();
+
+      // Progresso: aulas concluídas de cada aluno
+      match /progresso/{aulaId} {
+        allow read: if isAdmin() || (request.auth.uid == uid && isApproved());
+        allow create, update: if request.auth.uid == uid && isApproved()
+                              && request.resource.data.keys().hasOnly(['concluida_em']);
+        allow delete: if request.auth.uid == uid && isApproved();
+      }
+    }
+
+    // Conteúdo: alunos aprovados leem só o que está publicado
+    match /modulos/{id} {
+      allow read: if isAdmin() || (isApproved() && resource.data.publicado == true);
+      allow write: if isAdmin();
+    }
+    match /aulas/{id} {
+      allow read: if isAdmin() || (isApproved() && resource.data.publicado == true);
+      allow write: if isAdmin();
+    }
+  }
+}
