@@ -142,12 +142,22 @@ E acessar http://localhost:8000. Para o login funcionar, adicione
 public/
   index.html               Página pública de captura de leads
   admin/
-    index.html               Login do admin ("Entrar com Google")
-    dashboard.html             Painel com a lista de leads
+    index.html               Login + painel do admin numa única página
+                               (dashboard.html só redireciona pra cá, mantido
+                               por compatibilidade com links antigos)
   css/, images/                Estilos e imagens da campanha
   js/
     firebase-config.js          Configuração pública do app Firebase
     main.js                      Formulário público -> grava no Firestore
-    admin-login.js                Login com Google (Firebase Authentication)
-    admin.js                       Lista os leads e gera os exports (Excel/PDF)
+    admin.js                      Login com Google + lista de leads + exports
+                                    (Excel/PDF) — tudo na mesma página, sem
+                                    navegação entre login e painel
 ```
+
+> Login e painel ficam na mesma página (`public/admin/index.html`) de
+> propósito: alternar a visualização (mostrar o painel ou o botão de login)
+> acontece só com JavaScript, sem trocar de página. Isso evita uma falha
+> observada no Safari/iOS em que a troca de página logo após o Google
+> confirmar o login acontecia mais rápido que a sessão ser salva no
+> navegador, fazendo o usuário "voltar" para a tela de login mesmo tendo
+> entrado corretamente.

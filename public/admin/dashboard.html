@@ -2,63 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Leads — Sonhando Alto</title>
+<meta http-equiv="refresh" content="0; url=/admin/" />
+<title>Redirecionando...</title>
 <meta name="robots" content="noindex, nofollow" />
-<link
-  href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&display=swap"
-  rel="stylesheet"
-/>
-<link rel="stylesheet" href="/css/style.css" />
-<link rel="stylesheet" href="/css/admin.css" />
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>window.location.replace("/admin/");</script>
 </head>
-<body class="admin-body">
-  <header class="admin-header">
-    <div class="admin-header__inner">
-      <h1>Leads — Sonhando Alto</h1>
-      <div class="admin-header__actions">
-        <button class="btn btn--ghost btn--small" id="export-xlsx-btn">Baixar Excel</button>
-        <button class="btn btn--ghost btn--small" id="export-pdf-btn">Baixar PDF</button>
-        <button class="btn btn--ghost btn--small" id="logout-btn">Sair</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="admin-main">
-    <div class="admin-toolbar">
-      <input type="search" id="search-input" placeholder="Buscar por nome, cidade, curso..." />
-      <span id="total-count" class="admin-toolbar__count"></span>
-    </div>
-
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Telefone</th>
-            <th>Idade</th>
-            <th>Curso de interesse</th>
-            <th>Cidade</th>
-            <th>Distrito</th>
-            <th>Cadastro</th>
-          </tr>
-        </thead>
-        <tbody id="leads-tbody">
-          <tr>
-            <td colspan="7" class="admin-table__empty">Carregando...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
-
-  <script src="/js/firebase-config.js"></script>
-  <script src="/js/admin.js"></script>
+<body>
+  <p>Redirecionando para <a href="/admin/">/admin/</a>...</p>
 </body>
 </html>

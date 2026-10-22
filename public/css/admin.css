@@ -3,6 +3,14 @@
   min-height: 100vh;
 }
 
+/* [hidden] empata em especificidade com .admin-login/.admin-dashboard
+   (ambos display:flex/block) e perde por ordem no CSS — isso fazia as
+   duas views aparecerem juntas ao alternar só com a propriedade `hidden`. */
+#login-view[hidden],
+#dashboard-view[hidden] {
+  display: none !important;
+}
+
 /* ---- Login ---- */
 .admin-login {
   min-height: 100vh;
