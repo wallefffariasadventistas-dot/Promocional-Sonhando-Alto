@@ -42,9 +42,18 @@ service cloud.firestore {
                     && request.resource.data.distrito is string
                     && request.resource.data.distrito.size() <= 100
                     && request.resource.data.created_at == request.time;
-      allow read: if signedIn()
-                  && request.auth.token.email in ['walleff.fariasadventistas@gmail.com'];
-      allow update, delete: if false;
+      allow read: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Leads que o admin já marcou como "contactados" no painel — fica numa
+    // coleção separada pra não misturar com quem ainda precisa ser contatado.
+    match /contactados/{leadId} {
+      allow create: if isAdmin();
+      allow read: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // ===== Plataforma de aulas =====

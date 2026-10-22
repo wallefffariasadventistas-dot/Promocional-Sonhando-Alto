@@ -36,6 +36,13 @@ Firestore (leads + plataforma) estão em [`firestore.rules`](firestore.rules).
   os leads (lidos direto do Firestore), permite buscar e baixar os dados em
   **Excel (.xlsx)** ou **PDF** — os arquivos são gerados no próprio
   navegador (bibliotecas SheetJS e jsPDF), sem passar por nenhum servidor.
+  Tem duas abas:
+  - **Leads**: quem acabou de preencher o formulário. Cada linha tem os
+    botões **"Marcar como contactado"** (move o registro para a aba
+    Contactados, guardando a data/hora) e **"Excluir"** (apaga o registro
+    para sempre).
+  - **Contactados**: quem já foi contatado. Também tem botão **"Excluir"**.
+  Os botões de Excel/PDF exportam a aba que estiver aberta no momento.
 
 ## Configuração no Firebase Console (única configuração necessária)
 
@@ -49,53 +56,26 @@ seu projeto (`promocional-sonhando-alto`):
    `promocional-sonhando-alto.vercel.app` e `sonhandoalto.mpi.org.br`).
 3. **Firestore Database** → crie o banco, se ainda não existir (modo
    produção).
-4. **Firestore Database → Rules** → cole as regras abaixo, trocando o
-   e-mail de exemplo pelo(s) e-mail(s) de quem deve ter acesso ao painel
-   (pode listar mais de um, separado por vírgula):
+4. **Firestore Database → Rules** → cole o conteúdo completo do arquivo
+   [`firestore.rules`](firestore.rules) deste repositório, trocando o
+   e-mail de exemplo (`walleff.fariasadventistas@gmail.com`, na função
+   `isBootAdmin()`) pelo(s) e-mail(s) de quem deve ter acesso aos painéis
+   (pode listar mais de um, separado por vírgula). Clique em **"Publicar"**
+   depois de colar.
 
-   ```
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /leads/{leadId} {
-         allow create: if request.resource.data.keys().hasOnly(
-                           ['nome', 'telefone', 'idade', 'curso', 'cidade', 'distrito', 'created_at']
-                         )
-                       && request.resource.data.nome is string
-                       && request.resource.data.nome.size() > 0
-                       && request.resource.data.nome.size() <= 150
-                       && request.resource.data.telefone is string
-                       && request.resource.data.telefone.size() > 0
-                       && request.resource.data.telefone.size() <= 30
-                       && request.resource.data.idade is number
-                       && request.resource.data.idade >= 10
-                       && request.resource.data.idade <= 100
-                       && request.resource.data.curso is string
-                       && request.resource.data.cidade is string
-                       && request.resource.data.cidade.size() <= 100
-                       && request.resource.data.distrito is string
-                       && request.resource.data.distrito.size() <= 100
-                       && request.resource.data.created_at == request.time;
+   Resumo do que as regras fazem para a parte de leads:
 
-         allow read: if request.auth != null
-                     && request.auth.token.email in ['seu-email@gmail.com'];
-
-         allow update, delete: if false;
-       }
-     }
-   }
-   ```
-
-   Clique em **"Publicar"** depois de colar.
-
-   - A primeira parte (`allow create`) deixa qualquer pessoa cadastrar um
+   - `allow create` em `/leads/{leadId}` deixa qualquer pessoa cadastrar um
      lead pelo formulário público, mas só aceita documentos com exatamente
      os campos esperados e dentro de limites razoáveis de tamanho — uma
      proteção básica contra spam/abuso.
-   - A segunda parte (`allow read`) só deixa **quem estiver na lista de
-     e-mails** ler os dados — é isso que protege o painel admin.
-   - Ninguém pode editar ou apagar um lead depois de criado
-     (`allow update, delete: if false`).
+   - `allow read` e `allow delete` em `/leads/{leadId}` e em
+     `/contactados/{leadId}` só deixam **quem estiver na lista de e-mails
+     admin** ver e excluir os dados — é isso que protege os botões
+     **Excluir** e **Marcar como contactado** do painel.
+   - Ninguém pode editar um lead depois de criado (`allow update: if false`
+     nas duas coleções) — só mover (criar em `contactados` + apagar de
+     `leads`) ou excluir.
 
 Pronto — sem isso configurado, o formulário público não consegue salvar
 nada, e ninguém (nem você) consegue ver os dados no painel.
@@ -156,9 +136,12 @@ public/
   js/
     firebase-config.js          Configuração pública do app Firebase
     main.js                      Formulário público -> grava no Firestore
-    admin.js                      Login com Google + lista de leads + exports
+    admin.js                      Login com Google + abas Leads/Contactados
+                                    (marcar como contactado, excluir) + exports
                                     (Excel/PDF) — tudo na mesma página, sem
                                     navegação entre login e painel
+firestore.rules                 Regras completas do Firestore (leads,
+                                  contactados e plataforma de aulas)
 ```
 
 > Login e painel ficam na mesma página (`public/admin/index.html`) de
