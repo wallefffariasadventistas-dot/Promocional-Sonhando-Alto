@@ -146,8 +146,34 @@ firestore.rules                 Regras completas do Firestore (leads,
 
 > Login e painel ficam na mesma página (`public/admin/index.html`) de
 > propósito: alternar a visualização (mostrar o painel ou o botão de login)
-> acontece só com JavaScript, sem trocar de página. Isso evita uma falha
-> observada no Safari/iOS em que a troca de página logo após o Google
-> confirmar o login acontecia mais rápido que a sessão ser salva no
-> navegador, fazendo o usuário "voltar" para a tela de login mesmo tendo
-> entrado corretamente.
+> acontece só com JavaScript, sem trocar de página.
+
+## Login do admin no Safari/iOS ("missing initial state")
+
+Esse site teve um bug persistente: no Safari/iOS, às vezes o login com
+Google não finalizava — a pessoa completava o login direto no Google, mas
+voltava pra tela de entrar de novo, repetindo o ciclo.
+
+**Causa raiz:** o Firebase, por padrão, usa um domínio próprio
+(`promocional-sonhando-alto.firebaseapp.com`) como intermediário durante o
+login. Como esse domínio é diferente do domínio do site
+(`sonhandoalto.mpi.org.br` / `promocional-sonhando-alto.vercel.app`) e a
+pessoa nunca visita ele diretamente, o Safari (com "Impedir Rastreamento
+entre Sites", ativado por padrão no iOS) trata esse domínio como um
+"terceiro" e bloqueia o armazenamento que o Firebase precisa usar ali
+durante o processo de login — daí o erro.
+
+**Correção definitiva** (não é mais só um "tentar de novo"):
+
+1. `vercel.json` tem um rewrite que repassa todo pedido em `/__/auth/*`
+   para `https://promocional-sonhando-alto.firebaseapp.com/__/auth/*` por
+   baixo dos panos — igual a um proxy.
+2. `public/js/firebase-config.js` usa `authDomain: window.location.hostname`
+   (o próprio domínio do site) em vez do domínio padrão do Firebase.
+
+Com isso, o processo de login inteiro roda dentro do domínio do site —
+nunca sai para um domínio "terceiro" do ponto de vista do navegador — e o
+Safari não tem mais motivo pra bloquear o armazenamento usado no meio do
+caminho. **Isso só funciona se o domínio estiver em Authorized domains no
+Firebase** (já deve estar, veja a seção de configuração acima) — o rewrite
+sozinho não basta.
